@@ -426,16 +426,33 @@ void Algorithm_2_Test(){
     Eigen::Matrix<double, 2, 2> A;
     Eigen::Matrix<double, 2, 2> U;
     Eigen::Matrix<double, 2, 2> V;
+    Eigen::Matrix<double, 2, 2> negMatrix1;
+    Eigen::Matrix<double, 2, 2> negMatrix2;
+    Eigen::Matrix<double, 2, 2> posMatrix1;
+    Eigen::Matrix<double, 2, 2> posMatrix2;
     Eigen::Matrix<double, 2, 1> sigma;
 
-    A<< 1.111111, 2, 3.33333, 4;
-
+    negMatrix1<< 2.234, 4.4235, 8.324, -3.12;
+    negMatrix2<< 1.1111, 3.4235, 9.324, 6.12;
+    posMatrix1<< 1.1111, -3.3254, 45.12, -2.1;
+    posMatrix2<< 3.453, 2.2, -7.24, 3.3;
+    
+//    sigma<< 1.1435, -134.3;
+//    U = negMatrix1;
+//    V = posMatrix2;
+    
+//    A = U * Eigen::DiagonalMatrix<double, 2, 2>(sigma) * V.transpose();
+    A = posMatrix2;
+    
     singularValueDecomposition(A, U, sigma, V);
 
     Eigen::Matrix<double, 2, 2> AResult;
     AResult.noalias() = U * Eigen::DiagonalMatrix<double, 2, 2>(sigma) * V.transpose();
     std::string sep = "\n----------------------------------------\n";
     std::cout << A << sep;
+    std::cout << "U is " << U << "and det is " << U.determinant() << sep;
+    std::cout << "V is " << V << "and det is " << V.determinant() << sep;
+    std::cout << "sigma is " << sigma << sep;
     std::cout << AResult << sep;
 
 

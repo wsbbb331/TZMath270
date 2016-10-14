@@ -76,13 +76,15 @@ namespace JIXIE {
         sigmaHat(0) = sqrt(sigmaHat(0));
         sigmaHat(1) = sqrt(sigmaHat(1));
         
-        Eigen::Matrix<T, 2, 2> AA = C;
-        VHat.columnRotation(AA);
+        T Adet = A.determinant();
+        Eigen::Matrix<T, 2, 2> F = A;
+
+        VHat.columnRotation(F);
         
         GivensRotation<T> Q(0,1);
-        Q.compute(AA(0,0), AA(1,0));
+        Q.compute(F(0,0), F(1,0));
         
-        T r22 = Q.s * AA(0,1) + Q.c * AA(1,1);
+        T r22 = Q.s * F(0,1) + Q.c * F(1,1);
         Eigen::Matrix<T, 2, 2> UHat;
         if (r22 < 0){
             Q.fill(UHat);
@@ -94,7 +96,7 @@ namespace JIXIE {
             Q.fill(UHat);
         }
         
-        if (A.determinant() < 0){
+        if (Adet < 0){
             sigma(0) = sigmaHat(0);
             sigma(1) = -sigmaHat(1);
             if(det_u_negative){
@@ -104,13 +106,13 @@ namespace JIXIE {
                 v.col(0) = VHatMatrix.col(0);
             }
             else{
-                u.col(1) = -UHat.col(1);
+                u.col(1) = UHat.col(1);
                 u.col(0) = UHat.col(0);
                 v.col(1) = -VHatMatrix.col(1);
                 v.col(0) = VHatMatrix.col(0);
             }
         }
-        else if(A.determinant() > 0){
+        else if(Adet > 0){
             sigma(0) = sigmaHat(0);
             sigma(1) = sigmaHat(1);
             if(det_u_negative && det_v_negative){
@@ -126,7 +128,7 @@ namespace JIXIE {
                 v.col(0) = VHatMatrix.col(0);
             }
         }
-        else if(A.determinant() == 0){
+        else if(Adet == 0){
             sigma(0) = sigmaHat(0);
             sigma(1) = sigmaHat(1);
             u.col(1) = UHat.col(1);
