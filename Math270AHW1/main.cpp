@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Tools.h"
 #include "ImplicitQRSVD.h"
 #include "algorithm2.h"
+#include "algorithm3.h"
 
 template <class T>
 void testAccuracy(const std::vector<Eigen::Matrix<T, 3, 3> >& AA,
@@ -455,15 +456,38 @@ void Algorithm_2_Test(){
     std::cout << "sigma is " << sigma << sep;
     std::cout << AResult << sep;
 
+}
 
 
+void Algorithm_3_Test(){
+    using namespace JIXIE;
+    
+    Eigen::Matrix<double, 3, 3> A;
+    Eigen::Matrix<double, 3, 3> U;
+    Eigen::Matrix<double, 3, 3> V;
+    Eigen::Matrix<double, 3, 1> sigma;
 
+    A << 1.213, 12312,4.324, 423.4, 432.1, 5423.3, 43.1, 23.1, 5.1;
+    
+    singularValueDecomposition(A, U, sigma, V);
+    
+    Eigen::Matrix<double, 3, 3> AResult;
+    AResult.noalias() = U * Eigen::DiagonalMatrix<double, 3, 3>(sigma) * V.transpose();
+    std::string sep = "\n----------------------------------------\n";
+    std::cout << A << sep;
+    std::cout << "U is " << U << "and det is " << U.determinant() << sep;
+    std::cout << "V is " << V << "and det is " << V.determinant() << sep;
+    std::cout << "sigma is " << sigma << sep;
+    std::cout << AResult << sep;
+    
 }
 
 int main()
 {
     bool run_benchmark = false;
     bool run_algorithm2 = true;
+    bool run_algorithm3 = true;
     if (run_benchmark) runBenchmark();
     if (run_algorithm2) Algorithm_2_Test();
+    if (run_algorithm3) Algorithm_3_Test();
 }
