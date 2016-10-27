@@ -72,7 +72,7 @@ namespace JIXIE {
         using std::sqrt;
         using std::fabs;
         using std::pow;
-        std::string sep = "\n----------------------------------------\n";
+//        std::string sep = "\n----------------------------------------\n";
         
         S_Sym = A; //S symmetric
         Eigen::Matrix<T, 2, 2> S_Sym22;//2x2 placeholder
@@ -105,16 +105,16 @@ namespace JIXIE {
             }
             
             R22.rowRotation(S_Sym);
-//            std::cout << S_Sym << sep;
+//            std::cout << count << sep;
             R22.columnRotation(R);
             count += 1;
         }
-        std::cout << count << sep;
+//        std::cout << count << sep;
     }
     
     
     template <class T>
-    inline void singularValueDecomposition(const Eigen::Matrix<T, 3, 3>& A,
+    inline void My_SVD3(const Eigen::Matrix<T, 3, 3>& A,
                                           Eigen::Matrix<T, 3, 3>& U,
                                           Eigen::Matrix<T, 3, 1>& sigma,
                                           Eigen::Matrix<T, 3, 3>& V,
