@@ -523,23 +523,23 @@ singularValueDecomposition(
    \param[out] Sigma Vector of singular values sorted with decreasing magnitude. The second one can be negative.
    \param[out] V Robustly a rotation matrix.
 */
- template <class TA, class TU, class Ts, class TV>
- inline std::enable_if_t<isSize<TA>(2, 2) && isSize<TU>(2, 2) && isSize<TV>(2, 2) && isSize<Ts>(2, 1)>
- singularValueDecomposition(
-     const Eigen::MatrixBase<TA>& A,
-     const Eigen::MatrixBase<TU>& U,
-     const Eigen::MatrixBase<Ts>& Sigma,
-     const Eigen::MatrixBase<TV>& V,
-     const ScalarType<TA> tol = 64 * std::numeric_limits<ScalarType<TA> >::epsilon())
- {
-     using T = ScalarType<TA>;
-     GivensRotation<T> gv(0, 1);
-     GivensRotation<T> gu(0, 1);
-     singularValueDecomposition(A, gu, Sigma, gv);
+// template <class TA, class TU, class Ts, class TV>
+// inline std::enable_if_t<isSize<TA>(2, 2) && isSize<TU>(2, 2) && isSize<TV>(2, 2) && isSize<Ts>(2, 1)>
+// singularValueDecomposition(
+//     const Eigen::MatrixBase<TA>& A,
+//     const Eigen::MatrixBase<TU>& U,
+//     const Eigen::MatrixBase<Ts>& Sigma,
+//     const Eigen::MatrixBase<TV>& V,
+//     const ScalarType<TA> tol = 64 * std::numeric_limits<ScalarType<TA> >::epsilon())
+// {
+//     using T = ScalarType<TA>;
+//     GivensRotation<T> gv(0, 1);
+//     GivensRotation<T> gu(0, 1);
+//     singularValueDecomposition(A, gu, Sigma, gv);
 
-     gu.fill(U);
-     gv.fill(V);
- }
+//     gu.fill(U);
+//     gv.fill(V);
+// }
 
 
 /**
@@ -685,170 +685,170 @@ std::enable_if_t<t == 1> sort(Eigen::Matrix<T, 3, 3>& U, Eigen::Matrix<T, 3, 1>&
   \param[out] sigma Diagonal matrix, sorted with decreasing magnitude. The third one can be negative.
   \param[out] V is a rotation matrix.
   */
-template <class T>
-inline int singularValueDecomposition(const Eigen::Matrix<T, 3, 3>& A,
-    Eigen::Matrix<T, 3, 3>& U,
-    Eigen::Matrix<T, 3, 1>& sigma,
-    Eigen::Matrix<T, 3, 3>& V,
-    T tol = 128 * std::numeric_limits<T>::epsilon())
-{
-    using std::fabs;
-    using std::sqrt;
-    using std::max;
-    Eigen::Matrix<T, 3, 3> B = A;
-    U = Eigen::Matrix<T, 3, 3>::Identity();
-    V = Eigen::Matrix<T, 3, 3>::Identity();
-
-    makeUpperBidiag(B, U, V);
-
-    int count = 0;
-    T mu = (T)0;
-    GivensRotation<T> r(0, 1);
-
-    T alpha_1 = B(0, 0);
-    T beta_1 = B(0, 1);
-    T alpha_2 = B(1, 1);
-    T alpha_3 = B(2, 2);
-    T beta_2 = B(1, 2);
-    T gamma_1 = alpha_1 * beta_1;
-    T gamma_2 = alpha_2 * beta_2;
-    tol *= max((T)0.5 * sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), (T)1);
-
-    /**
-      Do implicit shift QR until A^T A is block diagonal
-      */
-
-    while (fabs(beta_2) > tol && fabs(beta_1) > tol
-        && fabs(alpha_1) > tol && fabs(alpha_2) > tol
-        && fabs(alpha_3) > tol) {
-        mu = wilkinsonShift(alpha_2 * alpha_2 + beta_1 * beta_1, gamma_2, alpha_3 * alpha_3 + beta_2 * beta_2);
-
-        r.compute(alpha_1 * alpha_1 - mu, gamma_1);
-        r.columnRotation(B);
-
-        r.columnRotation(V);
-        zeroChase(B, U, V);
-
-        alpha_1 = B(0, 0);
-        beta_1 = B(0, 1);
-        alpha_2 = B(1, 1);
-        alpha_3 = B(2, 2);
-        beta_2 = B(1, 2);
-        gamma_1 = alpha_1 * beta_1;
-        gamma_2 = alpha_2 * beta_2;
-        count++;
-    }
-    /**
-      Handle the cases of one of the alphas and betas being 0
-      Sorted by ease of handling and then frequency
-      of occurrence
-
-      If B is of form
-      x x 0
-      0 x 0
-      0 0 x
-      */
-    if (fabs(beta_2) <= tol) {
-        process<0>(B, U, sigma, V);
-        sort<0>(U, sigma, V);
-    }
-    /**
-      If B is of form
-      x 0 0
-      0 x x
-      0 0 x
-      */
-    else if (fabs(beta_1) <= tol) {
-        process<1>(B, U, sigma, V);
-        sort<1>(U, sigma, V);
-    }
-    /**
-      If B is of form
-      x x 0
-      0 0 x
-      0 0 x
-      */
-    else if (fabs(alpha_2) <= tol) {
-        /**
-        Reduce B to
-        x x 0
-        0 0 0
-        0 0 x
-        */
-        GivensRotation<T> r1(1, 2);
-        r1.computeUnconventional(B(1, 2), B(2, 2));
-        r1.rowRotation(B);
-        r1.columnRotation(U);
-
-        process<0>(B, U, sigma, V);
-        sort<0>(U, sigma, V);
-    }
-    /**
-      If B is of form
-      x x 0
-      0 x x
-      0 0 0
-      */
-    else if (fabs(alpha_3) <= tol) {
-        /**
-        Reduce B to
-        x x +
-        0 x 0
-        0 0 0
-        */
-        GivensRotation<T> r1(1, 2);
-        r1.compute(B(1, 1), B(1, 2));
-        r1.columnRotation(B);
-        r1.columnRotation(V);
-        /**
-        Reduce B to
-        x x 0
-        + x 0
-        0 0 0
-        */
-        GivensRotation<T> r2(0, 2);
-        r2.compute(B(0, 0), B(0, 2));
-        r2.columnRotation(B);
-        r2.columnRotation(V);
-
-        process<0>(B, U, sigma, V);
-        sort<0>(U, sigma, V);
-    }
-    /**
-      If B is of form
-      0 x 0
-      0 x x
-      0 0 x
-      */
-    else if (fabs(alpha_1) <= tol) {
-        /**
-        Reduce B to
-        0 0 +
-        0 x x
-        0 0 x
-        */
-        GivensRotation<T> r1(0, 1);
-        r1.computeUnconventional(B(0, 1), B(1, 1));
-        r1.rowRotation(B);
-        r1.columnRotation(U);
-
-        /**
-        Reduce B to
-        0 0 0
-        0 x x
-        0 + x
-        */
-        GivensRotation<T> r2(0, 2);
-        r2.computeUnconventional(B(0, 2), B(2, 2));
-        r2.rowRotation(B);
-        r2.columnRotation(U);
-
-        process<1>(B, U, sigma, V);
-        sort<1>(U, sigma, V);
-    }
-
-    return count;
-}
+//template <class T>
+//inline int singularValueDecomposition(const Eigen::Matrix<T, 3, 3>& A,
+//    Eigen::Matrix<T, 3, 3>& U,
+//    Eigen::Matrix<T, 3, 1>& sigma,
+//    Eigen::Matrix<T, 3, 3>& V,
+//    T tol = 128 * std::numeric_limits<T>::epsilon())
+//{
+//    using std::fabs;
+//    using std::sqrt;
+//    using std::max;
+//    Eigen::Matrix<T, 3, 3> B = A;
+//    U = Eigen::Matrix<T, 3, 3>::Identity();
+//    V = Eigen::Matrix<T, 3, 3>::Identity();
+//
+//    makeUpperBidiag(B, U, V);
+//
+//    int count = 0;
+//    T mu = (T)0;
+//    GivensRotation<T> r(0, 1);
+//
+//    T alpha_1 = B(0, 0);
+//    T beta_1 = B(0, 1);
+//    T alpha_2 = B(1, 1);
+//    T alpha_3 = B(2, 2);
+//    T beta_2 = B(1, 2);
+//    T gamma_1 = alpha_1 * beta_1;
+//    T gamma_2 = alpha_2 * beta_2;
+//    tol *= max((T)0.5 * sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), (T)1);
+//
+//    /**
+//      Do implicit shift QR until A^T A is block diagonal
+//      */
+//
+//    while (fabs(beta_2) > tol && fabs(beta_1) > tol
+//        && fabs(alpha_1) > tol && fabs(alpha_2) > tol
+//        && fabs(alpha_3) > tol) {
+//        mu = wilkinsonShift(alpha_2 * alpha_2 + beta_1 * beta_1, gamma_2, alpha_3 * alpha_3 + beta_2 * beta_2);
+//
+//        r.compute(alpha_1 * alpha_1 - mu, gamma_1);
+//        r.columnRotation(B);
+//
+//        r.columnRotation(V);
+//        zeroChase(B, U, V);
+//
+//        alpha_1 = B(0, 0);
+//        beta_1 = B(0, 1);
+//        alpha_2 = B(1, 1);
+//        alpha_3 = B(2, 2);
+//        beta_2 = B(1, 2);
+//        gamma_1 = alpha_1 * beta_1;
+//        gamma_2 = alpha_2 * beta_2;
+//        count++;
+//    }
+//    /**
+//      Handle the cases of one of the alphas and betas being 0
+//      Sorted by ease of handling and then frequency
+//      of occurrence
+//
+//      If B is of form
+//      x x 0
+//      0 x 0
+//      0 0 x
+//      */
+//    if (fabs(beta_2) <= tol) {
+//        process<0>(B, U, sigma, V);
+//        sort<0>(U, sigma, V);
+//    }
+//    /**
+//      If B is of form
+//      x 0 0
+//      0 x x
+//      0 0 x
+//      */
+//    else if (fabs(beta_1) <= tol) {
+//        process<1>(B, U, sigma, V);
+//        sort<1>(U, sigma, V);
+//    }
+//    /**
+//      If B is of form
+//      x x 0
+//      0 0 x
+//      0 0 x
+//      */
+//    else if (fabs(alpha_2) <= tol) {
+//        /**
+//        Reduce B to
+//        x x 0
+//        0 0 0
+//        0 0 x
+//        */
+//        GivensRotation<T> r1(1, 2);
+//        r1.computeUnconventional(B(1, 2), B(2, 2));
+//        r1.rowRotation(B);
+//        r1.columnRotation(U);
+//
+//        process<0>(B, U, sigma, V);
+//        sort<0>(U, sigma, V);
+//    }
+//    /**
+//      If B is of form
+//      x x 0
+//      0 x x
+//      0 0 0
+//      */
+//    else if (fabs(alpha_3) <= tol) {
+//        /**
+//        Reduce B to
+//        x x +
+//        0 x 0
+//        0 0 0
+//        */
+//        GivensRotation<T> r1(1, 2);
+//        r1.compute(B(1, 1), B(1, 2));
+//        r1.columnRotation(B);
+//        r1.columnRotation(V);
+//        /**
+//        Reduce B to
+//        x x 0
+//        + x 0
+//        0 0 0
+//        */
+//        GivensRotation<T> r2(0, 2);
+//        r2.compute(B(0, 0), B(0, 2));
+//        r2.columnRotation(B);
+//        r2.columnRotation(V);
+//
+//        process<0>(B, U, sigma, V);
+//        sort<0>(U, sigma, V);
+//    }
+//    /**
+//      If B is of form
+//      0 x 0
+//      0 x x
+//      0 0 x
+//      */
+//    else if (fabs(alpha_1) <= tol) {
+//        /**
+//        Reduce B to
+//        0 0 +
+//        0 x x
+//        0 0 x
+//        */
+//        GivensRotation<T> r1(0, 1);
+//        r1.computeUnconventional(B(0, 1), B(1, 1));
+//        r1.rowRotation(B);
+//        r1.columnRotation(U);
+//
+//        /**
+//        Reduce B to
+//        0 0 0
+//        0 x x
+//        0 + x
+//        */
+//        GivensRotation<T> r2(0, 2);
+//        r2.computeUnconventional(B(0, 2), B(2, 2));
+//        r2.rowRotation(B);
+//        r2.columnRotation(U);
+//
+//        process<1>(B, U, sigma, V);
+//        sort<1>(U, sigma, V);
+//    }
+//
+//    return count;
+//}
 
 /**
        \brief 3X3 polar decomposition.
@@ -861,18 +861,18 @@ inline int singularValueDecomposition(const Eigen::Matrix<T, 3, 3>& A,
        S is guaranteed to be the closest one to identity.
        R is guaranteed to be the closest rotation to A.
     */
-template <class T>
-inline void polarDecomposition(const Eigen::Matrix<T, 3, 3>& A,
-    Eigen::Matrix<T, 3, 3>& R,
-    Eigen::Matrix<T, 3, 3>& S_Sym)
-{
-    Eigen::Matrix<T, 3, 3> U;
-    Eigen::Matrix<T, 3, 1> sigma;
-    Eigen::Matrix<T, 3, 3> V;
-
-    singularValueDecomposition(A, U, sigma, V);
-    R.noalias() = U * V.transpose();
-    S_Sym.noalias() = V * Eigen::DiagonalMatrix<T, 3, 3>(sigma) * V.transpose();
-}
+//template <class T>
+//inline void polarDecomposition(const Eigen::Matrix<T, 3, 3>& A,
+//    Eigen::Matrix<T, 3, 3>& R,
+//    Eigen::Matrix<T, 3, 3>& S_Sym)
+//{
+//    Eigen::Matrix<T, 3, 3> U;
+//    Eigen::Matrix<T, 3, 1> sigma;
+//    Eigen::Matrix<T, 3, 3> V;
+//
+//    singularValueDecomposition(A, U, sigma, V);
+//    R.noalias() = U * V.transpose();
+//    S_Sym.noalias() = V * Eigen::DiagonalMatrix<T, 3, 3>(sigma) * V.transpose();
+//}
 }
 #endif

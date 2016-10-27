@@ -1,7 +1,7 @@
 namespace JIXIE {
     template <class TA, class TU, class Ts, class TV>
-    inline std::enable_if_t<isSize<TA>(2, 2) && isSize<TU>(2, 2) && isSize<TV>(2, 2) && isSize<Ts>(2, 2)>
-    My_SVD(
+    inline std::enable_if_t<isSize<TA>(2, 2) && isSize<TU>(2, 2) && isSize<TV>(2, 2) && isSize<Ts>(2, 1)>
+    singularValueDecomposition(
                                const Eigen::MatrixBase<TA>& A,
                                const Eigen::MatrixBase<TU>& U,
                                const Eigen::MatrixBase<Ts>& Sigma,
@@ -97,8 +97,8 @@ namespace JIXIE {
         }
         
         if (Adet < 0){
-            sigma(0, 0) = sigmaHat(0);
-            sigma(1, 1) = -sigmaHat(1);
+            sigma(0) = sigmaHat(0);
+            sigma(1) = -sigmaHat(1);
             if(det_u_negative){
                 u.col(1) = -UHat.col(1);
                 u.col(0) = UHat.col(0);
@@ -113,8 +113,8 @@ namespace JIXIE {
             }
         }
         else if(Adet > 0){
-            sigma(0, 0) = sigmaHat(0);
-            sigma(1, 1) = sigmaHat(1);
+            sigma(0) = sigmaHat(0);
+            sigma(1) = sigmaHat(1);
             if(det_u_negative && det_v_negative){
                 u.col(1) = -UHat.col(1);
                 u.col(0) = UHat.col(0);
@@ -129,8 +129,8 @@ namespace JIXIE {
             }
         }
         else if(Adet == 0){
-            sigma(0, 0) = sigmaHat(0);
-            sigma(1, 1) = sigmaHat(1);
+            sigma(0) = sigmaHat(0);
+            sigma(1) = sigmaHat(1);
             u.col(1) = UHat.col(1);
             u.col(0) = UHat.col(0);
             v.col(1) = VHatMatrix.col(1);

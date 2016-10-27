@@ -64,7 +64,7 @@ namespace JIXIE {
     }
     
     template <class T>
-    inline void My_Polar(const Eigen::Matrix<T, 3, 3>& A,
+    inline void polarDecomposition(const Eigen::Matrix<T, 3, 3>& A,
         Eigen::Matrix<T, 3, 3>& R,
         Eigen::Matrix<T, 3, 3>& S_Sym,
         T tol = 128 * std::numeric_limits<T>::epsilon())
