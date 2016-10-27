@@ -424,14 +424,14 @@ void runBenchmark()
 void Algorithm_2_Test(){
     using namespace JIXIE;
 
-    Eigen::Matrix<double, 2, 2> A;
-    Eigen::Matrix<double, 2, 2> U;
-    Eigen::Matrix<double, 2, 2> V;
-    Eigen::Matrix<double, 2, 2> negMatrix1;
-    Eigen::Matrix<double, 2, 2> negMatrix2;
-    Eigen::Matrix<double, 2, 2> posMatrix1;
-    Eigen::Matrix<double, 2, 2> posMatrix2;
-    Eigen::Matrix<double, 2, 1> sigma;
+    Eigen::Matrix2f A;
+    Eigen::Matrix2f U;
+    Eigen::Matrix2f V;
+    Eigen::Matrix2f negMatrix1;
+    Eigen::Matrix2f negMatrix2;
+    Eigen::Matrix2f posMatrix1;
+    Eigen::Matrix2f posMatrix2;
+    Eigen::Matrix2f sigma;
 
     negMatrix1<< 2.234, 4.4235, 8.324, -3.12;
     negMatrix2<< 1.1111, 3.4235, 9.324, 6.12;
@@ -445,7 +445,7 @@ void Algorithm_2_Test(){
 //    A = U * Eigen::DiagonalMatrix<double, 2, 2>(sigma) * V.transpose();
     A = posMatrix2;
     
-    singularValueDecomposition(A, U, sigma, V);
+    My_SVD(A, U, sigma, V);
 
     Eigen::Matrix<double, 2, 2> AResult;
     AResult.noalias() = U * Eigen::DiagonalMatrix<double, 2, 2>(sigma) * V.transpose();
@@ -459,27 +459,49 @@ void Algorithm_2_Test(){
 }
 
 
-void Algorithm_3_Test(){
+//void Algorithm_3_Test(){
+//    using namespace JIXIE;
+//    
+//    Eigen::Matrix<double, 3, 3> A;
+//    Eigen::Matrix<double, 3, 3> U;
+//    Eigen::Matrix<double, 3, 3> V;
+//    Eigen::Matrix<double, 3, 1> sigma;
+//
+//    A << 1.213, 12312,4.324, 423.4, 432.1, 5423.3, 43.1, 23.1, 5.1;
+//    
+//    singularValueDecomposition(A, U, sigma, V);
+//    
+//    Eigen::Matrix<double, 3, 3> AResult;
+//    AResult.noalias() = U * Eigen::DiagonalMatrix<double, 3, 3>(sigma) * V.transpose();
+//    std::string sep = "\n----------------------------------------\n";
+//    std::cout << A << sep;
+//    std::cout << "U is " << U << "and det is " << U.determinant() << sep;
+//    std::cout << "V is " << V << "and det is " << V.determinant() << sep;
+//    std::cout << "sigma is " << sigma << sep;
+//    std::cout << AResult << sep;
+//
+//    
+//    
+//    
+//}
+
+void algorithm3_Test2(){
     using namespace JIXIE;
     
-    Eigen::Matrix<double, 3, 3> A;
-    Eigen::Matrix<double, 3, 3> U;
-    Eigen::Matrix<double, 3, 3> V;
-    Eigen::Matrix<double, 3, 1> sigma;
-
-    A << 1.213, 12312,4.324, 423.4, 432.1, 5423.3, 43.1, 23.1, 5.1;
+    Eigen::Matrix3f A;
+    Eigen::Matrix3f R;
+    Eigen::Matrix3f S;
     
-    singularValueDecomposition(A, U, sigma, V);
+    A << 1.213, 12312,4.324, 423.4, 432.1, 5423.3, 43.1, 23.1, 5.1;
+    My_Polar(A, R, S);
     
     Eigen::Matrix<double, 3, 3> AResult;
-    AResult.noalias() = U * Eigen::DiagonalMatrix<double, 3, 3>(sigma) * V.transpose();
+    AResult.noalias() = R * S;
     std::string sep = "\n----------------------------------------\n";
     std::cout << A << sep;
-    std::cout << "U is " << U << "and det is " << U.determinant() << sep;
-    std::cout << "V is " << V << "and det is " << V.determinant() << sep;
-    std::cout << "sigma is " << sigma << sep;
+    std::cout << "R is " << R << "and det is " << R.determinant() << sep;
+    std::cout << "S is " << S << "and det is " << S.determinant() << sep;
     std::cout << AResult << sep;
-    
 }
 
 int main()
@@ -487,7 +509,9 @@ int main()
     bool run_benchmark = false;
     bool run_algorithm2 = true;
     bool run_algorithm3 = true;
+    bool run_algorithm3_2 = true;
     if (run_benchmark) runBenchmark();
     if (run_algorithm2) Algorithm_2_Test();
     if (run_algorithm3) Algorithm_3_Test();
+    if (run_algorithm3_2) algorithm3_Test2();
 }

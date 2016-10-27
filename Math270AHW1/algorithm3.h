@@ -63,32 +63,77 @@ namespace JIXIE {
         }
     }
     
+    template <class T>
+    inline void My_Polar(const Eigen::Matrix<T, 3, 3>& A,
+        Eigen::Matrix<T, 3, 3>& R,
+        Eigen::Matrix<T, 3, 3>& S_Sym,
+        T tol = 128 * std::numeric_limits<T>::epsilon())
+    {
+        using std::sqrt;
+        using std::fabs;
+        using std::pow;
+        std::string sep = "\n----------------------------------------\n";
+        
+        S_Sym = A; //S symmetric
+        Eigen::Matrix<T, 2, 2> S_Sym22;//2x2 placeholder
+        Eigen::Matrix<T, 2, 2> A22;//part of A
+        GivensRotation<T> R22(0, 1);//Iterative R
+        R = Eigen::Matrix<T, 3, 3>::Identity();
+        
+        int count = 0;
+        int maxcount = pow(10,3);
+        while((fabs(S_Sym(0,1) - S_Sym(1,0)) > tol || fabs(S_Sym(0,2) - S_Sym(2,0)) > tol || fabs(S_Sym(1,2) - S_Sym(2,1)) > tol) && count <= maxcount){
+            
+            R22.rowi = 0;
+            R22.rowk = 1;
+            
+            if(count % 3 == 0){
+                A22 = S_Sym.topLeftCorner(2,2);
+                polarDecomposition(A22, R22, S_Sym22);
+            }
+            else if(count % 3 == 1){
+                A22 << S_Sym(0,0), S_Sym(0,2), S_Sym(2,0), S_Sym(2,2);
+                polarDecomposition(A22, R22, S_Sym22);
+                R22.rowi = 0;
+                R22.rowk = 2;
+            }
+            else if(count % 3 == 2){
+                A22 = S_Sym.bottomRightCorner(2,2);
+                polarDecomposition(A22, R22, S_Sym22);
+                R22.rowi = 1;
+                R22.rowk = 2;
+            }
+            
+            R22.rowRotation(S_Sym);
+//            std::cout << S_Sym << sep;
+            R22.columnRotation(R);
+            count += 1;
+        }
+        std::cout << count << sep;
+    }
     
     
     template <class T>
     inline void singularValueDecomposition(const Eigen::Matrix<T, 3, 3>& A,
                                           Eigen::Matrix<T, 3, 3>& U,
                                           Eigen::Matrix<T, 3, 1>& sigma,
-                                          Eigen::Matrix<T, 3, 3>& V)
+                                          Eigen::Matrix<T, 3, 3>& V,
+                                           T tol = 128 * std::numeric_limits<T>::epsilon())
     {
         using std::sqrt;
         using std::fabs;
         using std::pow;
-
+        std::string sep = "\n----------------------------------------\n";
 
         Eigen::Matrix<T, 3, 3> S = A; //S symmetric
-
-        std::string sep = "\n----------------------------------------\n";
-        std::cout << A << sep;
-        
-        
         Eigen::Matrix<T, 2, 2> S_Sym;//2x2 placeholder
         Eigen::Matrix<T, 2, 2> A22;//part of A
         GivensRotation<T> R22(0, 1);//Iterative R
         U = Eigen::Matrix<T, 3, 3>::Identity();// R
         
         int count = 0;
-        while(fabs(S(0,1) - S(1,0)) > pow(10, -10) || fabs(S(0,2) - S(2,0)) > pow(10, -10) || fabs(S(1,2) - S(2,1)) > pow(10, -10)){
+        int maxcount = pow(10,5);
+        while((fabs(S(0,1) - S(1,0)) > tol || fabs(S(0,2) - S(2,0)) > tol || fabs(S(1,2) - S(2,1)) > tol) && count <= maxcount){
 
             R22.rowi = 0;
             R22.rowk = 1;
@@ -113,7 +158,7 @@ namespace JIXIE {
             }
             
             R22.rowRotation(S);
-            std::cout << S << sep;
+//            std::cout << S << sep;
             R22.columnRotation(U);
             count += 1;
         }
@@ -126,7 +171,7 @@ namespace JIXIE {
         Eigen::Matrix<T, 2, 1> sigma21;//placeholder of sigma
         
         count = 0;
-        while(fabs(S(0,1)) > pow(10, -10) || fabs(S(0,2)) > pow(10, -10) || fabs(S(1,2)) > pow(10, -10) || fabs(S(1,0)) > pow(10, -10) || fabs(S(2,0)) > pow(10, -10) || fabs(S(2,1)) > pow(10, -10)){
+        while((fabs(S(0,1)) > tol || fabs(S(0,2)) > tol || fabs(S(1,2)) > tol || fabs(S(1,0)) > tol || fabs(S(2,0)) > tol || fabs(S(2,1)) > tol) && count <= maxcount){
             V22.rowi = 0;
             V22.rowk = 1;
             
@@ -135,7 +180,7 @@ namespace JIXIE {
                 jacobiRotation(sigma21, V22, S22);
                 V22.rowRotation(S);
                 V22.columnRotation(S);
-                std::cout << S << sep;
+//                std::cout << S << sep;
             }
             else if (count % 3 == 1){
                 S22 << S(0,0), S(0,2), S(2,0), S(2,2);
@@ -144,7 +189,7 @@ namespace JIXIE {
                 V22.rowk = 2;
                 V22.rowRotation(S);
                 V22.columnRotation(S);
-                std::cout << S << sep;
+//                std::cout << S << sep;
                 
             }
             else if (count % 3 == 2){
@@ -154,7 +199,7 @@ namespace JIXIE {
                 V22.rowk = 2;
                 V22.rowRotation(S);
                 V22.columnRotation(S);
-                std::cout << S << sep;
+//                std::cout << S << sep;
             }
             
             V22.columnRotation(V);
