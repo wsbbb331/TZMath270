@@ -444,8 +444,8 @@ void Algorithm_2_Test(){
     
 //    A = U * Eigen::DiagonalMatrix<double, 2, 2>(sigma) * V.transpose();
     A = posMatrix2;
-    std::string sep = "\n----------------------------------------\n";
-    std::cout << "start of my svd" << sep;
+//    std::string sep = "\n----------------------------------------\n";
+//    std::cout << "start of my svd" << sep;
     for (float alpha = 0; alpha < 360; alpha++){
         GivensRotation<float> Rot(0, 1);
         Rot.c = cosf(alpha);
@@ -454,17 +454,17 @@ void Algorithm_2_Test(){
     
         My_SVD(A, U, sigma, V);
 
-        Eigen::Matrix<float, 2, 2> AResult;
-        AResult.noalias() = U * sigma * V.transpose();
-        Eigen::Matrix<float, 2, 2> ADiff = A - AResult;
-        float tol = 64 * std::numeric_limits<float>::epsilon();
-        if (fabsf(ADiff(0,0)) < tol && fabsf(ADiff(0,1)) < tol && fabsf(ADiff(1,0)) < tol &&
-            fabsf(ADiff(1,1)) < tol){
-            std::cout << "yes" << sep;
-        }
-        else{
-            std::cout << "no" << sep;
-        }
+//        Eigen::Matrix<float, 2, 2> AResult;
+//        AResult.noalias() = U * sigma * V.transpose();
+//        Eigen::Matrix<float, 2, 2> ADiff = A - AResult;
+//        float tol = 64 * std::numeric_limits<float>::epsilon();
+//        if (fabsf(ADiff(0,0)) < tol && fabsf(ADiff(0,1)) < tol && fabsf(ADiff(1,0)) < tol &&
+//            fabsf(ADiff(1,1)) < tol){
+//            std::cout << "yes" << sep;
+//        }
+//        else{
+//            std::cout << "no" << sep;
+//        }
         
 //        std::cout << A << sep;
 //        std::cout << "U is " << U << "and det is " << U.determinant() << sep;
@@ -508,9 +508,9 @@ void algorithm3_Test2(){
     Eigen::Matrix3f A;
     Eigen::Matrix3f R;
     Eigen::Matrix3f S;
-    std::string sep = "\n----------------------------------------\n";
-    std::cout << "start of my polar" << sep;
-    float tol = 64 * std::numeric_limits<float>::epsilon();
+//    std::string sep = "\n----------------------------------------\n";
+//    std::cout << "start of my polar" << sep;
+//    float tol = 64 * std::numeric_limits<float>::epsilon();
 
     for (float alpha = 0; alpha < 360; alpha++){
         A << 1.213, 12312,4.324, 423.4, 432.1, 5423.3, 43.1, 23.1, 5.1;
@@ -523,19 +523,18 @@ void algorithm3_Test2(){
         Eigen::Matrix<float, 3, 3> AResult;
         AResult.noalias() = R * S;
         Eigen::Matrix<float, 3, 3> ADiff = A - AResult;
-        if (fabsf(ADiff(0,0)) < tol && fabsf(ADiff(0,1)) < tol && fabsf(ADiff(1,0)) < tol &&
-            fabsf(ADiff(1,1)) < tol){
-            std::cout << "yes" << sep;
-        }
-        else{
-            std::cout << "no" << sep;
-        }
+//        if (fabsf(ADiff(0,0)) < tol && fabsf(ADiff(0,1)) < tol && fabsf(ADiff(1,0)) < tol &&
+//            fabsf(ADiff(1,1)) < tol){
+//            std::cout << "yes" << sep;
+//        }
+//        else{
+//            std::cout << "no" << sep;
+//        }
 //        std::cout << A << sep;
 //        std::cout << "R is " << R << "and det is " << R.determinant() << sep;
 //        std::cout << "S is " << S << "and det is " << S.determinant() << sep;
 //        std::cout << AResult << sep;
     }
-    std::cout << tol << sep;
 }
 
 int main()
